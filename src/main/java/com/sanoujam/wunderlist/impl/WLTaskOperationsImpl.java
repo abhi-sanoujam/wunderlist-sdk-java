@@ -24,13 +24,25 @@ public class WLTaskOperationsImpl implements WLTaskOperations {
   }
 
   @Override
-  public List<WLTask> getTasksForList(long listId) {
+  public List<WLTask> getTasksForList(long listId, boolean completed) {
     try {
       return (List<WLTask>)
           httpClientProvider
-              .createGetRequest(auth, new GetTasksUrl(listId))
+              .createGetRequest(auth, new GetTasksUrl(listId, completed))
               .execute()
               .parseAs(listType);
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  @Override
+  public WLTask getTask(long taskId) {
+    try {
+      return httpClientProvider
+          .createGetRequest(auth, new GenericUrl("http://a.wunderlist.com/api/v1/tasks/" + taskId))
+          .execute()
+          .parseAs(WLTask.class);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
@@ -40,9 +52,13 @@ public class WLTaskOperationsImpl implements WLTaskOperations {
     @Key("list_id")
     private final long listId;
 
-    public GetTasksUrl(long listId) {
+    @Key("completed")
+    private final boolean completed;
+
+    public GetTasksUrl(long listId, boolean completed) {
       super("http://a.wunderlist.com/api/v1/tasks");
       this.listId = listId;
+      this.completed = completed;
     }
   }
 }

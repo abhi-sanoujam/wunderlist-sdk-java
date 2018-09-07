@@ -5,5 +5,7 @@ import java.util.List;
 
 public interface WLTaskOperations {
 
-  List<WLTask> getTasksForList(long listId);
+  List<WLTask> getTasksForList(long listId, boolean completed);
+
+  WLTask getTask(long taskId);
 }
